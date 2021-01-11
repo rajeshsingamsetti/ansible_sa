@@ -240,4 +240,22 @@ ansible all -i myinventory  -m command -a 'free -m'
 to 
 ansible all -a 'df -h'
 
+ansible all -m shell -a 'sh get-docker.sh'
+
+ansible all -m copy -a 'src=/etc/passwd dest=/tmp'
+
+from controller to all manger nodes under tmp it will paste the data.
+
+create multiple directories on the controller one with other
+mkdir -p d1/d2/d3/d4
+
+
+to copy this entire folder strcture
+ansible all -m copy 'src=d1 dest=/tmp'
+
+
+
+
+
+
 
