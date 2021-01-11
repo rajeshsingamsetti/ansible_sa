@@ -328,7 +328,73 @@ ansible all -m user -a 'name=singam password=singam@123 uid=1234 comment="a norm
 
 ansible all -m uri -a 'url=http://google.com status=200' 
 
-ansible all -m apt -a 'name=apache2 state=present update_cache=yes' -b
+                              Playbooks
+Playbooks are created using yaml files
+
+mkdir playbooks
+cd playbooks
+vi playbook.yml
+
+---
+- name: install firewalld on all manager nodes
+  hosts: all
+  tasks: 
+   - name: install firewalld
+     apt:
+      name: firewalld
+      state: present
+      update_cache: yes 
+
+
+ansible-playbook playbook.yml --syntax-check -b
+
+---
+- name: install git
+  hosts: all
+  tasks: 
+   - name: install git
+     apt:
+      name: git
+      state: present
+   - name: clone a remote git repo
+     git:
+       repo:https://github.com/selenium-saikrishna/maven.git dest=/home/ubuntu/mygit
+       dest: /tmp/mygit 
+
+---
+- name: Configuring apache2
+  hosts: 192.168.60.14
+  become: yes
+  tasks:
+   - name: Installing apache2
+     apt:
+      name: apache2
+      state: present
+   - name: Edit index.html file
+     copy:
+      content: "Hi This is the home page of IntelliQ"
+      dest: /var/www/html/index.html
+   - name: Restart apache2
+     service:
+      name: apache2
+      state: restarted
+   - name: pause for seconds
+      pause:
+       seconds: 3
+   - name: Checking url response
+     uri:
+      url: http://192.168.60.14
+      status: 200
+      
+      
+
+
+
+       
+       
+       
+
+
 
 
 
