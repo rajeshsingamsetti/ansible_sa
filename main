@@ -1,1 +1,23 @@
-test
+Ansible practs
+
+launch 3 instances
+login into one server.
+sudo apt-get update 
+sudo apt-get install software-properties-common
+
+sudo apt-add-repository ppa:ansible/ansible
+sudo apt-get update 
+sudo apt-get install -y ansible
+
+ansible --version
+cd /etc/ansible/ 
+ls
+ansible.cfg hosts roles
+
+sudo vim hosts
+take the all private ip's and paste here.
+
+
+
+
+
