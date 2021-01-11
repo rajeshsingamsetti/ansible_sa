@@ -253,6 +253,91 @@ mkdir -p d1/d2/d3/d4
 to copy this entire folder strcture
 ansible all -m copy 'src=d1 dest=/tmp'
 
+by using copy module we can change the permissions also
+ansible all -m copy -a 'src=file2 dest=/tmp owner=root group=root mode=765'
+
+*** if u want execute as sudo in asnbile will use
+ansible all -m copy -a 'src=file2 dest=/tmp owner=root group=root mode=765' -b
+
+* by using copy module we can replace the data also
+ansible all -m copy -a 'content="welcome to raj\n" dest=/tmp/file2' -b
+
+-b means becomes
+
+
+using copy module we can manage permissions and we can replace data too
+
+
+* files
+ansible all -m file -a 'name=/tmp/newfile state=touch'
+ansible all -m file -a 'name=/tmp/newfolder state=directory'
+
+** to delete a file or folder
+ansible all -m file -a 'name=/tmp/newfolder state=absent'
+
+ansible all -m file -a 'name=/tmp/newfolder state=directory owner=root group=root mode=777' -b
+
+files we can create files and folders and we can remove them also and we can change the owener permissions too
+
+** ansible is an idempodent(if existing will be there it wont change on execustion change=false)
+
+apt
+
+ansible all -m apt -a 'name=git state=present' -b
+
+note:
+state=present used for installations
+state=absent used for uninstalltion
+state=latest used for upgradation to latest versions
+
+ansible all -m apt -a 'name=tomcat8 state=present' -b
+
+* update_cache means first it will update the all nodes later it will instal the package
+ansible all -m apt -a 'name=apache2 state=present update_cache=yes' -b
+
+* when you are uninstalling packages then u need to delete or remove those related packages too
+ansible all -m apt -a 'name=apache2 state=absent purge=yes' -b
+
+purge= yes will be given for removing all configuration files once application will be deleted ansible command uninsall tomcat and also remove configuration files
+
+service
+
+ansible all -m service -a 'name=tomcat8 state=restarted' -b
+
+started
+stopped
+restarted
+
+
+git 
+
+ansible all -m git -a 'repo=https://github.com/selenium-saikrishna/maven.git dest=/home/ubuntu/mygit' 
+
+
+replace
+
+ansible all -m replace -a 'path=/etc/tomcat8/server.xml regexp=8080 replace=9090' -b
+ansible all -m service -a 'name=tomcat8 state=restarted' -b
+
+
+user
+
+ansible all -m user -a 'name=singam password=singam@123' -b
+ansible all -m user -a 'name=singam password=singam@123 uid=1234 comment="a normal user" home=/home/ubuntu/anu  shell=/bin/bash' -b
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
