@@ -1,4 +1,151 @@
 Ansible practs
+------------------------------ installations--------------------------------
+Setup Ansible (installation Ubuntu)
+Take 2 servers one is ansible master other one is ansible slave ( i am taking 2 ubuntu servers)
+Launch servers.
+ref:https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-ubuntu
+sudo apt-get update -y
+sudo apt install software-properties-common
+sudo apt-add-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible
+
+To check python version --- python3 --version
+ansible --version (for ansible shows the version)
+from above steps the ansible configuration is done.
+Now we have to make ssh connection between the node and server.
+vi /etc/hosts
+private ip address server1.com server1
+Private ip address node1.com node1
+Do the same operations in both server and node.
+After going to aws console check server and node actions click on reboot.
+cd .ssh
+ssh-keygen (it will generate keys)
+before generate ssh-keygen go to
+vi /etc/ssh/sshd_config
+In this file
+Permit root login will be yes &
+PasswordAuthentication yes
+systemctl restart sshd (its used for the restart a ssh)
+Now in the position of .ssh type ssh-keygen
+ls now u wil see the public key and private key
+vi public key (copy that one)
+Login into node server;
+
+cd .ssh
+vi authorized_keys
+To go for end of ssh file type shift +a
+Paste the public key of ansible server in node..
+Save the file.
+In node go
+vi /etc/ssh/sshd_config
+In this file
+Permit root login will be yes &
+PasswordAuthentication yes
+systemctl restart sshd (its used for the restart a ssh)
+After ssh restart on node go to main server console.
+and sudo su
+ssh give here node server ip address. 
+
+ type yes
+Now it will login on node server.
+-------------------------------------------------------------for this succesfully we made ssh connection between server to node-------------
+Master server inventory containn all the ip address of nodes.
+cd /etc/ansible/
+vi hosts
+[webserver]
+172.31.38.220 (its is a private ip address of node like how many nodes present give step by step)
+
+ansible -m ping all
+Sample will be like this:
+
+172.31.38.220 | SUCCESS => {
+"ansible_facts": {
+"discovered_interpreter_python": "/usr/libexec/platform-python"
+},
+"changed": false,
+"ping": "pong"
+}
+
+
+                                               Ansible ON RHEL & CENTOS
+
+sudo su && cd
+pwd(now u r in root directory to install softwares)
+yum install wget (its for download web packages in linux)
+yum info wget (info command used to know complete information about that package)
+cat /etc/redhat-release (to find version of redhat)
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm (its for Upgrade package we
+downloaded that epel repo)
+yum install epel-release -y --- its for downloading the epel package in our linux machine
+yum install python (ansible develop by python so we need python if python not available means we will go with python 3)
+If python not install means it will give suggestions like this below
+There are following alternatives for "python": python2, python36, python38
+Now we go with python3.
+yum install git python3 python3-pip ansible openssl -y --- using this command we at a time installing the python and ansible)
+Now it will download all the packeges.
+To check python version --- python3 --version
+ansible --version (for ansible shows the version)
+
+vi /etc/hosts
+private ip address server1.com server1
+Private ip address node1.com node1
+Do the same operations in both server and node.
+After going to aws console check server and node actions click on reboot.
+cd .ssh
+ssh-keygen (it will generate keys)
+before generate ssh-keygen go to
+vi /etc/ssh/sshd_config
+In this file
+Permit root login will be yes &
+PasswordAuthentication yes
+systemctl restart sshd (its used for the restart a ssh)
+Now in the position of .ssh type ssh-keygen
+ls now u wil see the public key and private key
+vi public key (copy that one)
+Login into node server;
+
+cd .ssh
+vi authorized_keys
+To go for end of ssh file type shift +a
+Paste the public key of ansible server in node..
+Save the file.
+In node go
+vi /etc/ssh/sshd_config
+In this file
+Permit root login will be yes &
+PasswordAuthentication yes
+systemctl restart sshd (its used for the restart a ssh)
+After ssh restart on node go to main server console.
+and sudo su
+ssh give here node server ip address. 
+
+ type yes
+Now it will login on node server.
+-------------------------------------------------------------for this succesfully we made ssh connection between server to node-------------
+Master server inventory contains all the ip address of nodes.
+cd /etc/ansible/
+vi hosts
+[web server]
+172.31.38.220 (its is a private ip address of node like how many nodes present give step by step)
+
+ansible -m ping all
+Sample will be like this:
+
+172.31.38.220 | SUCCESS => {
+"ansible_facts": {
+"discovered_interpreter_python": "/usr/libexec/platform-python"
+},
+"changed": false,
+"ping": "pong"
+}
+
+
+----------------------------from above we are successfully learned ansible installation on ubuntu && rhel-----------------------
+
+
+
+
+------------------------------------------------ installation && configure done------------------------------------------------------------------------------------
 
 launch 3 instances
 login into one server.
@@ -18,6 +165,79 @@ sudo vim hosts
 take the all private ip's and paste here.
 
 
+to execute one command in all servers at a time
+ansible all -a 'date'
 
+note : if u see here warnings (to remove warnings)
+if u want to remove warnings
+vi /etc/anisble/ansible.cfg
+
+search for deprecation_warnings:
+make it like
+deprecation_warnings = False
+
+save it
+ansible all -a 'ls -la'
+
+hosts is an inventory file it is present in /etc/ansible folder
+
+host contain list of hostnames(private ip address)
+ansible does not require any client software install in managed on nodes
+
+its required password less authentication to comminicate between controller to nodes
+
+** ansible mostly used modules
+* command: to exexute linux commands on all nodes will use shell
+* ping:used to ping remote servers pingged or not
+* file: creating & deleting files & directoroes on managed on nodes
+* copy: used to copy files and directories to managed nodes
+* fetch : copying files from managed nodes to controller
+* user : used for creating users assign home directories default shell script etc...
+* apt: related to package management on ubuntu machines
+* yum : this will use for packamange management : centos ,fedora etc machies
+* service: used for starting stopping services on all manages nodes
+* replace: replacing a specific strings in a file
+* uri: used for remote url from managed nodes is reachable or not
+* setup: used for capture hardware and software configurations of manager nodes
+* stat: capture info about files and folders all manager nodes
+* debug : used for display output of any module 
+* include: used for calling child playbooks from parent playbook
+* template : used for copying dynamic configurations files from controller to managed node similar to copy module but we can use group variables that define al 
+managed nodes
+* mount: mounting/unmounting devices on managed nodes
+* group: used for creating groups on remote servers
+* git: used to perform git version controlling all the manager nodes 
+* mail: used to sending emails from manage node (generally used for sending error notofication as email messages)
+* docker_container: this module used for exec docker container commands all manager nodes
+* docker_images: used for exec docker commands related ti images
+* docker_login: used for logged into docker hub to manager nodes
+* ec2: used launching ec2 instances on aws
+
+ansible perform remote configuration in 3 diff ways 
+adhoc commands (invidual commands)
+playbooks
+roles
+
+ansible all/groupname/ipaddress -i pathofinventoryfile -m command -a 'free -m' 
+i is inventory file(path is /etc/ansible/hosts)
+m module name
+
+creating my own inventory file
+myinventory
+paste only 2 or any
+
+now run ansible commands
+ansible all -i myinventory  -m command -a 'free -m' 
+
+ansible 172.189.12.3 -i myinventory  -m command -a 'free -m' 
+
+
+if u don't give ur own inventory it will take default inventory file(/etc/ansible/hosts)
+
+
+while working on module of shell 
+ansible all -i myinventory  -m command -a 'free -m' 
+to 
+ansible all -a 'df -h'
 
 
