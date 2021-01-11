@@ -326,7 +326,9 @@ ansible all -m user -a 'name=singam password=singam@123' -b
 ansible all -m user -a 'name=singam password=singam@123 uid=1234 comment="a normal user" home=/home/ubuntu/anu  shell=/bin/bash' -b
 
 
+ansible all -m uri -a 'url=http://google.com status=200' 
 
+ansible all -m apt -a 'name=apache2 state=present update_cache=yes' -b
 
 
 
