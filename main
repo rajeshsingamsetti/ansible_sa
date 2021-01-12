@@ -444,9 +444,198 @@ by using variables of global variables we make playbook dynamic -b
 ansible-playbook plyabook.yml --extra-vars "a=tree b=absent c=no d" -b 
 
 
+with in a variable
 
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  vars:
+   - a: tomcat8
+   - b: present
+   - c: no
+  tasks:
+   - name: Install
+     apt:
+       name: "{{a}}"
+       state: "{{b}}"
+       update_cache: "{{c}}"
+       
       
-      
+ansible-playbook plyabook.yml --extra-vars "a=tree b=absent c=no d" -b 
+
+vi hosts
+[webserver]
+172.78.78
+[db]
+156.45.656
+[server:children]
+webserver
+db
+
+group vars refer once.
+
+
+Ansible files:
+Previously we store variables inside a playbook but now we are storing variables in a file.
+ 
+Create fileabc.yml file paste below code on this.
+pkg: httpd
+After create files.yml (paste below code)
+ 
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  vars_files:
+   - fileabc.yml
+  tasks:
+   - name: install httpd
+     yum: name={{pkg}} state=installed
+   - name: creates index.html file
+     copy: src=index.html dest=/var/www/html
+   - name: restart httpd
+     service: name={{pkg}} state=started 
+ 
+Checking syntax:
+ ansible-playbook files.yml --syntax
+ ansible-playbook files.yml
+
+
+vi webserver.yml
+---
+a: default-jdk
+b: present
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  vars_files:
+   - fileabc.yml
+  tasks:
+   - name: install httpd
+     apt: name={{a}} state={{b}}
+   
+
+
+loops
+
+Loops playbook ansible
+For suppose i want install multi packages in nodes or at a time we install 100 packages at a time.
+vi loop.yml 
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  tasks:
+   - name: installing multiple packages
+     yum: name={{item}} state=installed
+     with_items:
+        - httpd
+        - curl
+        - wget
+        
+2.
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  tasks:
+   - name: installing multiple packages
+     yum: 
+     name: "{{item.a}}" 
+     state: "{{item.b}}"
+     with_items:
+        - {a: httpd,b: present}
+        - {a: curl,b: present}
+        - wget
+3. creating multiple users
+- hosts: webserver
+  remote_user: root
+  become: yes
+  tasks:
+   - name: creating users
+     user: 
+       name: "{{item.a}}" 
+       password: "{{item.b}}"
+       home: "{{item.c}}"
+     with_items:
+        - {a: raj,b: call2ask,c: /home/raj}
+   - name: coping files
+     copy:
+      src: "{{item.a}}"
+      dest: "{{item.b}}"
+     with_items:
+        - {a: /etc/passwd,b: /home/smaranj} 
+        
+ansible-playbook loop.yml --syntax
+Above if we observe withitems place we need to give whatever the packages we need to install.
+
+conditional operator
+
+---
+ - name: simple play to install httpd
+   hosts: all
+   become: yes 
+   tasks:
+   - name: installing httpd using yum 
+     yum: 
+        name: httpd
+        state: absent
+     when: ansible_distribution == "RedHat"
+   - name: installing httpd using apt 
+     yum: 
+        name: git
+        state: latest
+     when: ansible_distribution == "RedHat"
+2
+---
+ - name: imple play to install httpd
+   hosts: all
+#  gather_facts: false
+   become: yes 
+   tasks:
+     - name: Update Existing Packages
+       yum: name=httpd state=latest
+       when: (ansible_distribution == "CentOS") or
+            (ansible_distribution == "RedHat")  
+
+3.
+---
+- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Dist Version
+      shell: cat /etc/os-release
+      register: response
+
+    - debug: msg="{{ response.stdout }}"
+
+
+file module:
+
+---
+ - name: installing packages
+   hosts: all
+   become: yes
+   tasks:
+    - name: installing git packages  
+      file:
+       path: /home/ansadmin/demofile
+       state: touch
+    - name: creating a directory
+      file:
+       path: /home/ansadmin/directory
+       state: directory
+
+
+
+
+
+
+
+
+
 
 
 
