@@ -361,6 +361,15 @@ ansible-playbook playbook.yml --syntax-check -b
        repo:https://github.com/selenium-saikrishna/maven.git dest=/home/ubuntu/mygit
        dest: /tmp/mygit 
 
+UseCase
+1 Install apache2 on one managed host
+2 Edit the content of index.html file
+3 Restart apache2
+4 Check whether url is responding or not
+
+vim playbook3.yml
+Go into insert mode by pressing 'i'
+
 ---
 - name: Configuring apache2
   hosts: 192.168.60.14
@@ -378,13 +387,64 @@ ansible-playbook playbook.yml --syntax-check -b
      service:
       name: apache2
       state: restarted
-   - name: pause for seconds
-      pause:
-       seconds: 3
    - name: Checking url response
      uri:
       url: http://192.168.60.14
       status: 200
+
+
+------------------------ variables----------
+Variables:
+Its used to store the information.
+
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  vars:
+   pkg: httpd
+  tasks:
+   - name: install httpd
+     yum: name={{pkg}} state=installed
+   - name: creates index.html file
+     copy: src=index.html dest=/var/www/html
+   - name: restart httpd
+     service: name={{pkg}} state=started
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  tasks:
+   - name: install httpd
+     yum: name={{a}} state={{b}} update_cache={{c}}
+     or
+     name: "{{a}}"
+     state: "{{b}}"
+ansible-playbook plyabook.yml --extra-vars "a=tree b=absent c=no" -b
+
+
+by using variables of global variables we make playbook dynamic -b
+
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  tasks:
+   - name: creating users
+     user: 
+      name: "{{a}}"
+      state: "{{b}}"
+      home: "{{c}}
+      uid: "{{d}}
+   - name: copying files
+     copy;
+      src: "{{e}}"
+      dest: "{{f}}"
+ 
+ansible-playbook plyabook.yml --extra-vars "a=tree b=absent c=no d" -b 
+
+
+
       
       
 
