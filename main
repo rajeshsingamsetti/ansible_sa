@@ -629,10 +629,205 @@ file module:
        state: directory
 
 
+Register module we used to capture the output
+
+
+Debug is used to display the output
+ Vi register.yml
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  tasks:
+   - name: install httpd
+     yum: name=httpd state=installed
+   - name: creates index.html file
+     copy: src=index.html dest=/var/www/html
+   - name: restart httpd
+     service: name=httpd state=started
+     register: output
+   - debug:
+       msg: "{{output}}"
+
+2. check the directory present or not if exist create a file
+
+---
+- name: check the directory present or not if exist create a file
+  hosts: webserver
+  tasks:
+   - name: check dir
+     stat:
+      path: /var
+      register: results
+   - name: display output of the above stat modules
+     debug
+      var: results
+   - name: create a file
+     file:
+      name: /var/file1
+      state: touch
+     when:  
+      results.stat.exists == true
+---
+
+in result will see that exist
+      
+ansible-playbook register.yml --syntax
+ansible-playbook register.yml
+
+
+notify
+**notify name and handler name should be same otherwise it will through an error.
+
+Httpd install on ansible playbook.
+---
+ - name: installing packages
+   hosts: all
+   become: yes
+   tasks:
+    - name: installing http packages
+      yum:
+       name: httpd
+       state: latest
+      notify: starting httpd package
+    handlers:   
+    - name: starting httpd package
+      service:
+       name: httpd
+       state: started
+
+Note: notify message and 
+Handler:
+ Name: name of handler 
+
+
+rescue
+---
+ - name: error handling
+   hosts: all
+   become: yes
+   tasks:
+   - block:
+      - name: installing http packages
+        yum:
+         name: httpd
+         state: latest
+     rescue;
+      - name: install tomcat8
+        apt:
+         name: tomcat8
+         state: present
+     always:
+      - name: check url responce
+        uri:
+         url: "{{item}}"
+         status: 200
+        with_items:
+         - http://privateip:8080
+         - http://privateip:8080         
+         
+ 
+ tagging:
+ 
+ Tags: (when u want execute particular task only)
+---
+- name: this playbook install httpd
+  hosts: all
+  become: true
+  tasks:
+  - name: install package
+    yum:
+      name: httpd
+      state: installed
+    when: ansible_os_family == "RedHat"
+    tags: install_apache
+  - name: start apache
+    service:
+      name: httpd
+      state: started
+    when: ansible_os_family == "RedHat"
+    tags: start_apache
+
+ansible-playbook.yml  file.yml --tags “install_apache” 
+
+
+2.
+Tags:
+In play book if u want perform a particular task for ex i have 3 task i want to run 2 task that time i just give 2 tagname is enough to run that task.
+vi tags.yml
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  tasks:
+   - name: install httpd
+     yum: name=httpd state=installed
+     tags:
+      - install
+   - name: creates index.html file
+     copy: src=index.html dest=/var/www/html
+     tags:
+      - configure
+   - name: restart httpd
+     service: name=httpd state=started
+     tags:
+      - service
+save:
+ 
+Execute below commands:
+Method1:
+ansible-playbook tags.yml --tag  "install,configure"
+ansible-playbook tags.yml --skip-tags "install,configure"
+Method2:
+ansible-playbook tags.yml --start-at-task="creates index.html file"
+Method3:
+ansible-playbook tags.yml --step  (this step ask permission 2 execute)
 
 
 
 
+include
+
+vi include.yml
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  tasks:
+   - include: child.yml
+
+
+child.yml
+---
+- name: install maven
+  apt:
+    name: maven
+    state: present
+    update_cache: yes
+---    
+    
+2.
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  tasks:
+   - include: "{{item}}"
+     with_items:
+       - install.yml
+       - config.yml
+       
+
+
+
+
+
+
+
+
+
+         
+         
 
 
 
