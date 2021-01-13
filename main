@@ -1323,6 +1323,34 @@ sudo vi main.yml
 - include: check_url_responce.yml
 
 
+sudo vim install.yml
+
+---
+- name: install apache2
+  apt:
+    name: apache2
+    state: present
+    update_cache: yes
+    
+---
+
+sudo configure.yml
+---
+- name: copy index.html
+  copy:
+    src: index.html
+    dest: /var/www/html
+  notify:
+    Restart apache2
+---
+
+
+sudo vim check_url_responce.yml
+
+---
+- name: check url of apache2
+  uri:
+  
 
 
 
