@@ -875,9 +875,132 @@ after docker install successfully
        state: absent
        
 
+---- implementing docker compose on ansible
 
 
+---
+- name: working on docker compose
+  hosts: all
+  tasks:
+   - name: start mysql as container
+     docker_container:
+       image: mysql:5
+       name: mydb
+       env;
+        MYSQL_ROOT_PASSWORD: raj
+   - name: start wordpress as a container and link with mysql container
+     docker_container:
+     image: wordpress
+     name: mywordpress
+     ports:
+      - 8080: 80
+     links:
+      - mydb:mysql
 
+
+**** create ci cd environment using docker ansible
+---
+- name: create ci cd environment using docker ansible
+  hosts: all
+  tasks: 
+  - name: create jenkins
+    docker_container:
+     image: jenkins
+     name: devserver
+     ports:
+      - 5555:8080
+  - name: start tomcat conatiner
+    docker_container:
+     image: tomcat
+     name: devserver
+     ports:
+      - 6666:8080
+     links:
+      - devserver:jenkins
+  - name: start another tomcat
+    docker_container:
+     image: tomcat
+     name: prodserver
+     ports:
+      - 6666:8080
+     links:
+      - prodserver:jenkins
+      
+      
+2
+
+---
+- name: create ci cd environment using docker ansible
+  hosts: all
+  tasks: 
+  - name: create jenkins
+    docker_container:
+     image: jenkins
+     name: devserver
+     ports:
+      - 5555:8080
+  - name: start tomcat conatiner
+    docker_container:
+     image: tomcat
+     name: devserver
+     ports:
+      - 6666:8080
+     links:
+      - devserver:jenkins
+    with_items:
+     - {a: qbserver, b: "6666:8080"}
+     - {b: prodserver, b: "7777:8080"}
+     
+
+start 10 httpd containers on all managed nodes
+
+---
+- name: start 10 httpd containers on all managed nodes
+  hosts: all
+  tasks:
+  - name: start 10 httpd servers
+    docker_container:
+      image: httpd
+      name: "container{{item}}"
+    with_sequence: count=10
+    
+    
+sudo docker system prune -a
+
+
+ansible vault
+
+Ansible Security or vault
+ 
+---
+- hosts: webserver
+  remote_user: root
+  become: yes
+  vars:
+   password: raj
+  tasks:
+   - name: install httpd
+     yum: name=httpd state=installed
+   - name: creates index.html file
+     copy: src=index.html dest=/var/www/html
+   - name: restart httpd
+     service: name=httpd state=started
+ 
+To run this
+ansible-vault encrypt vault.yml
+ 
+Above command will convert the plain text to other diffrent hidden format
+ 
+It will ask u r playbook password give it 2 times now that file will be encrypted 
+Now if u type cat password.yml its not in human readable launguage.
+ 
+ansible-playbook vault.yml --ask-vault-pass
+ 
+Above command is asked before ur playbook will execute
+ 
+ansible-vault edit vault.yml (coomand for edit the encrypt file)
+ansible-vault rekey vault.yml (we can modify the password)
+ansible-vault decrypt vault.yml (we can decrypt the ansible file)
 
 
 
