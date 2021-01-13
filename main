@@ -1338,7 +1338,7 @@ sudo configure.yml
 ---
 - name: copy index.html
   copy:
-    src: index.html
+    src: index.html.  (it is a file will present in file module)
     dest: /var/www/html
   notify:
     Restart apache2
@@ -1350,9 +1350,18 @@ sudo vim check_url_responce.yml
 ---
 - name: check url of apache2
   uri:
-  
+    url: "{{item}}"
+    status: 200
+  with_items:
+    - http://privateip1
+    - http://privateip2
+    - http://privateip3
 
-
+cd files
+vi index.html
+<html>
+<h3>Testing Purpose i am doing this one </h3>
+</html>
 
 
 
