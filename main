@@ -1470,8 +1470,8 @@ pkg1: tomcat8
 state1: present
 cache1: yes
 pkg2: tomcat8-admin
-state1: present
-cache1: yes
+state2: present
+cache2: yes
 
 file1: tomcat-user.xml
 dest1: /etc/tomcat8
@@ -1491,8 +1491,48 @@ sudo vi restart.yml
     state: "{{state2}}"
 ---
 
-cd 
+cd files
 
+sudo vim tomcat-user.xml
+<tomcat-user>
+  <user username="rajesh" password="singam" roles="manager-script"/>
+  
+</tomcat-user>
+
+cd handlers
+
+vi main.yml
+-name: check url responce
+  uri:
+   url: "{{item.a}}"
+   status: "{{item.b}}"
+  with_items:
+   - {a: "{{server1}}", b: "{{status1}}"}
+   - {a: "{{server2}}", b: "{{status2}}"}
+   - {a: "{{server3}}", b: "{{status3}}"}
+---
+
+
+cd vars
+vi main.yml
+
+server1: http://privateip:8080
+server2: http://privateip:8080
+server3: http://privateip:8080
+
+sudo vim 
+
+
+
+---
+- name: configuring apache2 using roles
+  hosts: all
+  roles:
+   - apache (roll name)
+   
+now u will execute the file
+
+ansible_playbook apache_roles.yml -b
 
 
 
