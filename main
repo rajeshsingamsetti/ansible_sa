@@ -820,6 +820,62 @@ child.yml
 
 
 
+------------- setup docker with ansible 
+---
+- name: setup of  docker for ansible
+  hosts: all
+  tasks:
+  - name: install python-pip
+    apt:
+     name: python-pip
+     state: present
+     update_cache: yes
+  - name: download docker
+    shell; curl -fsSL https://get.docker.com -o get-docker.sh
+  - name: install docker
+    shell: sh get.docker.sh
+  - name: install docker-py
+    shell: pip install docker-py
+ 2
+ 
+---
+- name: setup of  docker for ansible
+  hosts: all
+  tasks:
+  - name: install python-pip
+    apt:
+     name: python-pip
+     state: present
+     update_cache: yes
+  - name: download docker
+    shell: "{{item}}"
+    with_items:
+      - curl -fsSL https://get.docker.com -o get-docker.sh
+      - sh get.docker.sh
+      - pip install docker-py
+  
+
+after docker install successfully
+
+---
+- name: working on tomcat container
+  hosts: all
+  tasks:
+   - name: start tomcat tomcat as a container
+     docker_container:
+       image: webserver
+       name: webserver
+   - name: stop tomcat container
+     docker_container:
+       name: webserver
+       state: stopped
+   -name: Remove the tomcat conatiner
+     docker_container:
+       name: webserver
+       state: absent
+       
+
+
 
 
 
