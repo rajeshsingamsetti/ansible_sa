@@ -1364,6 +1364,138 @@ vi index.html
 </html>
 
 
+cd handlers
+
+sudo vi main.yml
+---
+- name: Restart apache2
+  service:
+    name: apache2
+    state: restarted
+---
+
+
+after roles completion all
+
+come out of that role
+
+create a playbook
+sudo vim apache_roles.yml
+
+---
+- name: configuring apache2 using roles
+  hosts: all
+  roles:
+   - apache (roll name)
+   
+now u will execute the file
+
+ansible_playbook apache_roles.yml -b
+
+
+
+
+
+
+**roles2
+cd /etc/ansible/roles
+rm -rf delelte previous roles
+
+sudo ansible-galaxy init tomcat --offline
+
+cd tasks
+sudo vi main.yml
+
+---
+- name: call child playbooks for tomcat
+- include: "{{item}}"
+  with_items:
+    - include: install_tomcat.yml
+    - include: configure.yml
+    - include: restart.yml
+---
+
+
+sudo vim install_tomcat.yml
+
+---
+- name: install tomcat 8 and tomcat8-admin
+  apt:
+    name: "{{item.a}}"
+    state: "{{item.b}}"
+    upadte_cache: "{{item.c}}"
+  with_items:
+    //- {a:tomcat8,b: present,c:yes}
+    //- {a:tomcat8-admin,b: present,c:yes}
+      - {a:"{{pkg1}}",b: "{{state1}}",c:"{{cache1}}"}
+      - {a:"{{pkg2}}",b: "{{state2}}",c:"{{cache2}}"}
+      
+     
+cd vars
+vi main.yml
+
+---
+pkg1: tomcat8
+state1: present
+cache1: yes
+pkg2: tomcat8-admin
+state1: present
+cache1: yes
+
+
+cd tasks
+
+sudo vi configure.yml
+---
+- name: copy tomcat-user.xml
+  copy:
+   //src: tomcat-user.xml
+   src: "{{file1}}"
+   //dest: /etc/tomcat8
+   dest: "{{dest1}}"
+- name: change port no 9090 to 8080
+  replace:
+   regexp: "{{port1}}"
+   replace: "{{port2}}"
+   //path: /etc/tomcat/server.xml
+   path: "{{path1}}"
+  notify: check url responce
+---
+
+cd vars
+vi main.yml
+
+---
+pkg1: tomcat8
+state1: present
+cache1: yes
+pkg2: tomcat8-admin
+state1: present
+cache1: yes
+
+file1: tomcat-user.xml
+dest1: /etc/tomcat8
+port1: 9090
+port2: 8080
+path1: /etc/tomcat/server.xml
+
+
+cd tasks
+
+sudo vi restart.yml
+
+---
+- name: restart tomcat
+  service: 
+    name: "{{pkg1}}"
+    state: "{{state2}}"
+---
+
+cd 
+
+
+
+
 
 
 
